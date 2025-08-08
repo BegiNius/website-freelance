@@ -309,6 +309,18 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
   background-color: #ff9966;
 }
 
+@media (max-width: 768px) {
+  #makale > div {
+    grid-template-columns: 1fr !important;
+  }
+  #makale nav[aria-label="İçindekiler"] {
+    position: static !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin-bottom: 2rem;
+  }
+}
+
 </style>
 <script type="application/ld+json">
 [
