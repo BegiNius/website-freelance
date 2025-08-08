@@ -301,31 +301,6 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb {
 nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
   background-color: #ff9966;
 }
-.expandable-content {
-  overflow: hidden;
-  max-height: 8em; /* ilk gösterilen yüksekliği ayarla */
-  transition: max-height 0.4s ease;
-}
-.expandable-content.expanded {
-  max-height: 1000px; /* yeterince büyük olmalı */
-}
-.toggle-button {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.6rem 1.2rem;
-  border: 1px solid #ff7f50;
-  border-radius: 999px;
-  background-color: transparent;
-  color: #ff7f50;
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-.toggle-button:hover {
-  background-color: #ff7f50;
-  color: #121212;
-}
 
 </style>
 <script type="application/ld+json">
@@ -682,12 +657,7 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
   Evden çağrı merkezi, günümüzde popüler bir çalışma modeli haline gelmiştir. Bu model, çalışanlara esnek çalışma saatleri sunarak iş-yaşam dengesini sağlamalarına yardımcı olur. Uzaktan çağrı merkezi uygulamaları, modern iş hayatında giderek yaygınlaşmaktadır. Şirketler, bu sayede maliyetlerini azaltma fırsatı yakalarken; çalışanlar da evden çalışarak verimliliklerini artırır ve müşteri hizmetleri süreçlerini daha etkin yönetirler. Esnek çalışma, çalışan memnuniyetini yükseltirken, şirketler geniş yetenek havuzlarına erişim sağlar. Teknolojik gelişmeler de bu çalışma biçiminin desteklenmesinde önemli bir rol oynar.
 </p>
 
-<button id="toggleButton" class="toggle-button" aria-expanded="false" aria-controls="expandableContent">
-  Devamını Oku
-</button>
-
-<div id="expandableContent" class="expandable-content" aria-hidden="true" style="overflow:hidden; max-height:0; transition:max-height 0.4s ease;">
-  <h2 id="gerekli-ekipmanlar">Evden Çağrı Merkezi İçin Gerekli Ekipmanlar</h2>
+<h2 id="gerekli-ekipmanlar">Evden Çağrı Merkezi İçin Gerekli Ekipmanlar</h2>
   <p>
     Evden çağrı merkezi çalışmaları için bazı temel ekipmanlar hayati önem taşır. Öncelikle, güçlü bir internet bağlantısına sahip, yeterli donanım kapasitesinde bir bilgisayar gereklidir. Ayrıca, çağrı merkezi yazılımlarıyla uyumlu kaliteli bir mikrofon ve kulaklık seti de olmazsa olmazlardandır. Telefondan arama yapma yeteneğine sahip bir sistem kurmak da iş verimliliğini artırır. Bu ekipmanlar, ev konforunda çalışırken müşteri ile etkili iletişim kurulmasını sağlar.
   </p>
@@ -702,7 +672,6 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
   <p>
     Bu ekipmanlar, evden çağrı merkezi deneyiminizi verimli hale getirir ve sunduğunuz hizmetin kalitesini artırır. Ayrıca, doğru ekipman kullanımı müşteri memnuniyetini yükseltmenize katkı sağlar. Bu nedenle, ekipmanların güncel ve işlevsel olmasına özen gösterilmelidir.
   </p>
-</div>
 
       <h2 id="is-ilanlari">Uzaktan çağrı merkezi iş ilanları nasıl bulunur</h2>
       <p>Evden Çağrı Merkezi pozisyonları günümüzde oldukça popüler hale geldi. İş arayanlar, evden çalışarak gelir elde etmenin yollarını arıyor. Bu makalede, uzaktan çağrı merkezi iş ilanlarını nasıl bulabileceğinizi detaylı bir şekilde anlatacağım. Öncelikle, internette kapsamlı bir araştırma yapmanız gerekiyor. Çeşitli platformlar üzerinden güncel ilanları takip etmek önemli. Ancak yalnızca bu kaynaklarla sınırlı kalmamalısınız. Bunun yanı sıra, arkadaşlarınızdan veya sektörle ilişkili tanıdıklarınızdan bilgiler alabilirsiniz. Çalışanların deneyimleri, iş bulma sürecinizde size yardımcı olacaktır.</p>
@@ -924,24 +893,6 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
     else openPanel();
   });
 })();
-  const toggleBtn = document.getElementById('toggleButton');
-  const expandable = document.getElementById('expandableContent');
-
-  toggleBtn.addEventListener('click', () => {
-    const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
-
-    if(expanded){
-      expandable.style.maxHeight = '0';
-      expandable.setAttribute('aria-hidden', 'true');
-      toggleBtn.setAttribute('aria-expanded', 'false');
-      toggleBtn.textContent = 'Devamını Oku';
-    } else {
-      expandable.style.maxHeight = expandable.scrollHeight + 'px';
-      expandable.setAttribute('aria-hidden', 'false');
-      toggleBtn.setAttribute('aria-expanded', 'true');
-      toggleBtn.textContent = 'Daha Az Göster';
-    }
-  });
 
 </script>
 </body>
