@@ -928,12 +928,22 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
   const expandable = document.getElementById('expandableContent');
 
   toggleBtn.addEventListener('click', () => {
-    const expanded = expandable.classList.toggle('expanded');
-    expandable.setAttribute('aria-hidden', !expanded);
-    toggleBtn.setAttribute('aria-expanded', expanded);
-    toggleBtn.textContent = expanded ? 'Daha Az Göster' : 'Devamını Oku';
+    const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+
+    if(expanded){
+      expandable.style.maxHeight = '0';
+      expandable.setAttribute('aria-hidden', 'true');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      toggleBtn.textContent = 'Devamını Oku';
+    } else {
+      expandable.style.maxHeight = expandable.scrollHeight + 'px';
+      expandable.setAttribute('aria-hidden', 'false');
+      toggleBtn.setAttribute('aria-expanded', 'true');
+      toggleBtn.textContent = 'Daha Az Göster';
+    }
   });
 
 </script>
 </body>
 </html>
+
