@@ -657,6 +657,8 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
   Evden çağrı merkezi, günümüzde popüler bir çalışma modeli haline gelmiştir. Bu model, çalışanlara esnek çalışma saatleri sunarak iş-yaşam dengesini sağlamalarına yardımcı olur. Uzaktan çağrı merkezi uygulamaları, modern iş hayatında giderek yaygınlaşmaktadır. Şirketler, bu sayede maliyetlerini azaltma fırsatı yakalarken; çalışanlar da evden çalışarak verimliliklerini artırır ve müşteri hizmetleri süreçlerini daha etkin yönetirler. Esnek çalışma, çalışan memnuniyetini yükseltirken, şirketler geniş yetenek havuzlarına erişim sağlar. Teknolojik gelişmeler de bu çalışma biçiminin desteklenmesinde önemli bir rol oynar.
 </p>
 
+<button id="read-more" class="btn">Devamını Oku</button>
+<div id="more-content" hidden>
 <h2 id="gerekli-ekipmanlar">Evden Çağrı Merkezi İçin Gerekli Ekipmanlar</h2>
   <p>
     Evden çağrı merkezi çalışmaları için bazı temel ekipmanlar hayati önem taşır. Öncelikle, güçlü bir internet bağlantısına sahip, yeterli donanım kapasitesinde bir bilgisayar gereklidir. Ayrıca, çağrı merkezi yazılımlarıyla uyumlu kaliteli bir mikrofon ve kulaklık seti de olmazsa olmazlardandır. Telefondan arama yapma yeteneğine sahip bir sistem kurmak da iş verimliliğini artırır. Bu ekipmanlar, ev konforunda çalışırken müşteri ile etkili iletişim kurulmasını sağlar.
@@ -810,8 +812,10 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
       <h2>Yazar</h2>
       <p><strong>Elif Demir</strong></p>
       <p>Uzmanlık Alanı: Çağrı Merkezi Yönetimi ve Uzaktan Çalışma Stratejileri</p>
-      <p>Elif Demir, 15 yılı aşkın süredir çağrı merkezi sektöründe deneyime sahip bir yönetim danışmanıdır. Uzaktan çalışma modelleri ve verimlilik artırma konularında uzmanlaşmıştır.</p>
-    </article>
+        <p>Elif Demir, 15 yılı aşkın süredir çağrı merkezi sektöründe deneyime sahip bir yönetim danışmanıdır. Uzaktan çalışma modelleri ve verimlilik artırma konularında uzmanlaşmıştır.</p>
+        <button id="show-less" class="btn">Daha Az Göster</button>
+      </div>
+      </article>
   </div>
 </section>
 
@@ -861,36 +865,19 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
 
 <script>
 (function(){
-  const btn = document.getElementById('toggle');
-  const body = document.getElementById('body');
-  const inner = body?.querySelector('.inner');
-  if(!btn || !body || !inner) return;
+  const readMore = document.getElementById('read-more');
+  const showLess = document.getElementById('show-less');
+  const moreContent = document.getElementById('more-content');
+  if(!readMore || !showLess || !moreContent) return;
 
-  let open = false;
-  const setHeight = h => body.style.setProperty('--h', h + 'px');
+  readMore.addEventListener('click', () => {
+    moreContent.hidden = false;
+    readMore.style.display = 'none';
+  });
 
-  const openPanel = () => {
-    const fullHeight = inner.getBoundingClientRect().height;
-    setHeight(fullHeight);
-    body.setAttribute('aria-hidden', 'false');
-    btn.setAttribute('aria-expanded', 'true');
-    btn.textContent = 'Daha Az Göster';
-    open = true;
-  };
-
-  const closePanel = () => {
-    setHeight(0);
-    body.setAttribute('aria-hidden', 'true');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.textContent = 'Daha Fazla Göster';
-    open = false;
-  };
-
-  closePanel();
-
-  btn.addEventListener('click', () => {
-    if(open) closePanel();
-    else openPanel();
+  showLess.addEventListener('click', () => {
+    moreContent.hidden = true;
+    readMore.style.display = '';
   });
 })();
 
