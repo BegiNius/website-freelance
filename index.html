@@ -706,92 +706,147 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover{background-color:
 (function(){
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Smooth scroll for in-page anchors
+  // ---------- Yardımcılar ----------
+  const readMore   = document.getElementById('read-more');
+  const showLess   = document.getElementById('show-less');
+  const moreContent= document.getElementById('more-content');
+
+  let spyObserver = null; // Tek bir IntersectionObserver örneği tut
+
+  function openArticle(){
+    if(!moreContent || !readMore) return;
+    if (!moreContent.hidden) return; // zaten açık
+    moreContent.hidden = false;
+    readMore.setAttribute('aria-expanded','true');
+    readMore.style.display = 'none';
+    // Makale açıldığında scrollspy'ı kur
+    initScrollSpy();
+  }
+
+  function closeArticle(){
+    if(!moreContent || !readMore) return;
+    // Kapatırken gözlemciyi temizle
+    if (spyObserver){ spyObserver.disconnect(); spyObserver = null; }
+    moreContent.hidden = true;
+    readMore.setAttribute('aria-expanded','false');
+    readMore.style.display = '';
+    readMore.focus({preventScroll:true});
+  }
+
+  function initScrollSpy(){
+    // Daha önce varsa kapat
+    if (spyObserver){ spyObserver.disconnect(); spyObserver = null; }
+    if (!moreContent || moreContent.hidden) return;
+
+    const headings = Array.from(document.querySelectorAll('#more-content h2[id]'));
+    if (!headings.length) return;
+
+    const tocLinksMap = new Map(
+      Array.from(document.querySelectorAll('.toc a'))
+        .map(a => [a.getAttribute('href').slice(1), a])
+    );
+
+    spyObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const id = entry.target.getAttribute('id');
+          document.querySelectorAll('.toc li').forEach(li=>li.classList.remove('active'));
+          const a = tocLinksMap.get(id);
+          if(a){
+            a.parentElement.classList.add('active');
+            a.setAttribute('aria-current','location');
+          }
+        }
+      });
+    }, { rootMargin:'-60% 0px -35% 0px', threshold: 0 });
+
+    headings.forEach(h=>spyObserver.observe(h));
+  }
+
+  // ---------- Sayfa içi smooth-scroll + TOC entegrasyonu ----------
   document.addEventListener('click', (e)=>{
     const a = e.target.closest('a[href^="#"]');
     if(!a) return;
+
     const id = a.getAttribute('href');
     const el = document.querySelector(id);
-    if(el){
-      e.preventDefault();
-      el.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
-      if(el.getAttribute('tabindex') === '-1'){ el.focus({preventScroll:true}); }
-      history.replaceState(null, '', id);
+    if(!el) return;
+
+    e.preventDefault();
+
+    // Eğer hedef başlık makale içinde ve makale kapalıysa önce aç
+    const isInMoreContent = el.closest('#more-content') !== null;
+    if (isInMoreContent && moreContent && moreContent.hidden){
+      openArticle();
+      // Layout oluşsun diye bir sonraki frame'e kaydır
+      requestAnimationFrame(()=>{
+        el.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+        if(el.getAttribute('tabindex') === '-1'){ el.focus({preventScroll:true}); }
+        history.replaceState(null, '', id);
+      });
+      return;
     }
+
+    // Normal akış
+    el.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+    if(el.getAttribute('tabindex') === '-1'){ el.focus({preventScroll:true}); }
+    history.replaceState(null, '', id);
   });
 
-  // Read more / less with a11y state and focus management
-  const readMore = document.getElementById('read-more');
-  const showLess = document.getElementById('show-less');
-  const moreContent = document.getElementById('more-content');
+  // ---------- Devamını Oku / Daha Az Göster ----------
   if(readMore && moreContent){
     readMore.addEventListener('click', ()=>{
-      moreContent.hidden = false;
-      readMore.setAttribute('aria-expanded','true');
-      readMore.style.display = 'none';
+      openArticle();
       const firstH2 = moreContent.querySelector('h2');
       if(firstH2) firstH2.scrollIntoView({behavior: prefersReduced ? 'auto':'smooth'});
     });
   }
-  if(showLess && moreContent && readMore){
-    showLess.addEventListener('click', ()=>{
-      moreContent.hidden = true;
-      readMore.setAttribute('aria-expanded','false');
-      readMore.style.display = '';
-      readMore.focus({preventScroll:true});
-    });
+  if(showLess){
+    showLess.addEventListener('click', closeArticle);
   }
 
-  // TOC mobile collapse
-  const toc = document.querySelector('.toc');
-  const tocBtn = document.querySelector('.toc-toggle');
+  // ---------- TOC mobil daraltma ----------
+  const toc     = document.querySelector('.toc');
+  const tocBtn  = document.querySelector('.toc-toggle');
   const tocList = document.getElementById('toc-list');
   if(toc && tocBtn && tocList){
-    const setCollapsed = (val)=>{ toc.dataset.collapsed = String(val); tocBtn.setAttribute('aria-expanded', String(!val)); };
+    const setCollapsed = (val)=>{
+      toc.dataset.collapsed = String(val);
+      tocBtn.setAttribute('aria-expanded', String(!val));
+    };
     setCollapsed(window.innerWidth < 769);
     tocBtn.addEventListener('click', ()=> setCollapsed(toc.dataset.collapsed !== 'true' ? true : false));
     window.addEventListener('resize', ()=>{ if(window.innerWidth >= 769) setCollapsed(false); });
   }
 
-  // Scrollspy for headings -> highlight in TOC
-  const headings = Array.from(document.querySelectorAll('#more-content h2[id]'));
-  const tocLinks = new Map(Array.from(document.querySelectorAll('.toc a')).map(a=>[a.getAttribute('href').slice(1), a]));
-  const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        const id = entry.target.getAttribute('id');
-        document.querySelectorAll('.toc li').forEach(li=>li.classList.remove('active'));
-        const a = tocLinks.get(id);
-        if(a){ a.parentElement.classList.add('active'); a.setAttribute('aria-current','location'); }
+  // ---------- Back to top görünürlük ----------
+  const toTop = document.getElementById('to-top');
+  if (toTop) {
+    const toggleTop = () => {
+      if (window.scrollY > 600) {
+        toTop.classList.add('show');
+        toTop.removeAttribute('tabindex'); // klavye ile erişilebilir
+      } else {
+        if (document.activeElement === toTop) toTop.blur();
+        toTop.classList.remove('show');
+        toTop.setAttribute('tabindex', '-1'); // tabbable değil
       }
-    });
-  }, {rootMargin:'-60% 0px -35% 0px', threshold: 0});
-  headings.forEach(h=>obs.observe(h));
+    };
+    toggleTop();
+    window.addEventListener('scroll', toggleTop, { passive: true });
+    toTop.addEventListener('click', () =>
+      window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' })
+    );
+  }
 
-// Back to top visibility
-const toTop = document.getElementById('to-top');
-if (toTop) {
-  const toggleTop = () => {
-    if (window.scrollY > 600) {
-      toTop.classList.add('show');
-      toTop.removeAttribute('tabindex');      // tab ile erişilebilir
-    } else {
-      // Gizlenirken odak varsa al
-      if (document.activeElement === toTop) toTop.blur();
-      toTop.classList.remove('show');
-      toTop.setAttribute('tabindex', '-1');   // tabdan çıkar
-    }
-  };
-  toggleTop();
-  window.addEventListener('scroll', toggleTop, { passive: true });
-  toTop.addEventListener('click', () =>
-    window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' })
-  );
-}
+  // ---------- İlk yüklemede (makale açıksa) scrollspy başlat ----------
+  if (moreContent && !moreContent.hidden) initScrollSpy();
 })();
 </script>
+
 </body>
 </html>
+
 
 
 
