@@ -17,7 +17,7 @@
 *{box-sizing:border-box}
 img,picture,video,canvas,svg{max-width:100%;height:auto}
 html,body{height:100%}
-html,body{overflow-x:hidden} /* footer wave güvenliği */
+html,body{overflow-x:hidden}
 body{
   margin:0;
   font:16px/1.65 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -31,6 +31,10 @@ body{
 .container{max-width:1200px;margin-inline:auto;padding-inline:clamp(16px,3.5vw,32px)}
 section{position:relative}
 
+/* --- Skip link --- */
+.skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+.skip-link:focus{left:16px;top:12px;width:auto;height:auto;padding:.6rem 1rem;z-index:1000;border-radius:10px;background:#111a2b;color:#fff;outline:2px solid var(--brand)}
+
 /* -------- Header / Navbar -------- */
 .nav{
   position:sticky; top:0; z-index:50;
@@ -38,13 +42,16 @@ section{position:relative}
   background:color-mix(in srgb, #0a0c10 78%, transparent);
   border-bottom:1px solid color-mix(in srgb, var(--ring) 65%, transparent);
 }
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0;gap:12px}
 .brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.25px}
 .brand .logo{
   width:28px;height:28px; border-radius:8px;
   background:conic-gradient(from 220deg, var(--brand), var(--brand-2));
   box-shadow:0 0 0 1px color-mix(in srgb, var(--brand) 30%, transparent), 0 10px 22px rgba(255,127,80,.25);
 }
+.nav-links{display:none;gap:10px;align-items:center}
+.nav-links a{color:#cfe0ff;text-decoration:none;padding:.5rem .7rem;border-radius:10px;border:1px solid #ffffff12;background:#ffffff05;transition:background .18s ease,color .18s ease}
+.nav-links a:hover{background:#ffffff10;color:#fff}
 .nav-cta{
   display:inline-flex; align-items:center; gap:.6rem;
   padding:.72rem 1rem; border-radius:999px; border:1px solid color-mix(in srgb, var(--brand) 56%, transparent);
@@ -56,6 +63,9 @@ section{position:relative}
 .nav-cta:hover{transform:translateY(-1px); box-shadow:inset 0 0 0 1px #ffffff10, 0 10px 28px rgba(255,127,80,.25)}
 .nav-cta .dot{width:7px;height:7px;border-radius:999px;background:var(--ok);box-shadow:0 0 12px var(--ok)}
 
+@media (min-width:720px){
+  .nav-links{display:flex}
+}
 @media (max-width:600px){
   .nav-inner{flex-direction:column;gap:8px}
   .nav-cta{width:100%;justify-content:center}
@@ -137,7 +147,9 @@ section{position:relative}
   box-shadow:0 10px 28px rgba(0,0,0,.35), inset 0 0 0 1px #ffffff06;
   display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:flex-start;
 }
-details.card{display:block}
+.card[tabindex]{outline:none}
+.card:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb, var(--brand) 50%, #fff)}
+.details.card{display:block}
 .badge{
   width:42px;height:42px;border-radius:12px;
   display:grid;place-items:center;font-size:20px;font-weight:900;
@@ -174,12 +186,22 @@ details.card{display:block}
 
 /* Expandable body */
 .expand{overflow:hidden; --h:0px; height:var(--h); transition:height .28s ease; will-change:height}
-.toggle{
-  margin-top:14px; border:1px solid #253251; background:#ffffff0b; color:#e7eeff;
-  padding:.7rem 1rem; border-radius:999px; font-weight:700;
-  cursor:pointer;
-}
+.toggle{margin-top:14px; border:1px solid #253251; background:#ffffff0b; color:#e7eeff; padding:.7rem 1rem; border-radius:999px; font-weight:700; cursor:pointer;}
 .toggle:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+
+/* TOC mobile toggle */
+.toc-toggle{display:none}
+@media (max-width:768px){
+  #makale > div{grid-template-columns:1fr !important}
+  #makale nav[aria-label="İçindekiler"]{position:static !important;height:auto !important;overflow:visible !important;margin-bottom:1rem;border-radius:12px}
+  .toc-toggle{display:inline-flex;align-items:center;gap:.5rem;border:1px solid #23304a;background:#121a2a;color:#e7eeff;border-radius:10px;padding:.6rem .9rem;font-weight:700}
+  .toc[data-collapsed="true"] ol{display:none}
+}
+
+/* Back to top */
+#to-top{position:fixed;right:16px;bottom:16px;z-index:60;padding:.7rem .9rem;border-radius:999px;border:1px solid #264063;background:#0f1a2a;color:#e7eeff;box-shadow:0 10px 24px rgba(0,0,0,.35);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+#to-top.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+#to-top:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
 /* -------- Career Path -------- */
 .career{padding-block:clamp(72px,9vw,110px); background:linear-gradient(180deg,#0a0d14 0%, #0b0f16 100%)}
@@ -188,14 +210,7 @@ details.card{display:block}
 .career-wrap{position:relative; height:320px; max-width:1200px; margin:0 auto}
 .career-path{position:absolute; inset:0; width:100%; height:100%; opacity:.9}
 .career-steps{position:absolute; inset:0; pointer-events:none}
-.step{
-  position:absolute; width:240px; max-width:40vw;
-  background:linear-gradient(180deg,#0f1725 0%, #0e1523 100%);
-  border:1px solid #1e2a41; border-radius:16px; padding:14px;
-  text-align:left; pointer-events:auto;
-  box-shadow:0 14px 32px rgba(0,0,0,.35), inset 0 0 0 1px #ffffff06;
-  transition:transform .2s ease, box-shadow .2s ease;
-}
+.step{position:absolute; width:240px; max-width:40vw; background:linear-gradient(180deg,#0f1725 0%, #0e1523 100%); border:1px solid #1e2a41; border-radius:16px; padding:14px; text-align:left; pointer-events:auto; box-shadow:0 14px 32px rgba(0,0,0,.35), inset 0 0 0 1px #ffffff06; transition:transform .2s ease, box-shadow .2s ease}
 .step:hover{transform:translateY(-4px); box-shadow:0 20px 46px rgba(0,0,0,.4)}
 .step .ic{font-size:22px; margin-bottom:6px; color:#f5f7ff}
 .step h3{margin:.1rem 0 .2rem; color:#f5f7ff; font-size:1.02rem}
@@ -211,27 +226,13 @@ details.card{display:block}
 }
 
 /* -------- Footer (FIXED WAVES) -------- */
-footer{
-  position:relative; color:#cfe0ff; text-align:center; padding:64px 0 80px;
-  background:linear-gradient(180deg,#0b0f16 0%, #0a0c10 100%);
-  isolation:isolate; /* dalga/arka plan katmanlarını güvene al */
-}
-footer .double-wave{
-  position:absolute; top:-110px; left:50%;
-  width:100vw; height:110px;
-  transform:translateX(-50%);
-  pointer-events:none;
-  z-index:0;
-}
-footer .double-wave svg{
-  position:absolute; inset:0; width:100%; height:100%; display:block;
-}
+footer{position:relative; color:#cfe0ff; text-align:center; padding:64px 0 80px; background:linear-gradient(180deg,#0b0f16 0%, #0a0c10 100%); isolation:isolate}
+footer .double-wave{position:absolute; top:-110px; left:50%; width:100vw; height:110px; transform:translateX(-50%); pointer-events:none; z-index:0}
+footer .double-wave svg{position:absolute; inset:0; width:100%; height:100%; display:block}
 footer small{opacity:.85; position:relative; z-index:1}
 
 /* -------- Accessibility / Motion -------- */
-@media (prefers-reduced-motion:reduce){
-  *{transition:none!important; animation-duration:.001ms!important; scroll-behavior:auto!important}
-}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important; animation-duration:.001ms!important; scroll-behavior:auto!important} }
 
 /* Utility */
 .hr{height:1px; background:linear-gradient(90deg, transparent, #2a3753, transparent); margin:18px 0}
@@ -244,83 +245,30 @@ footer small{opacity:.85; position:relative; z-index:1}
 @keyframes hero-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
 .btn, .btn.ghost{position:relative; overflow:hidden}
-.btn::after, .btn.ghost::after{
-  content:""; position:absolute; inset:-2px;
-  background:linear-gradient(110deg, transparent 30%, #ffffff80 50%, transparent 70%);
-  transform:translateX(-120%); transition:transform .5s ease;
-}
+.btn::after, .btn.ghost::after{content:""; position:absolute; inset:-2px; background:linear-gradient(110deg, transparent 30%, #ffffff80 50%, transparent 70%); transform:translateX(-120%); transition:transform .5s ease}
 .btn.ghost::after{background:linear-gradient(110deg, transparent 35%, #ffffff22 50%, transparent 65%)}
 .btn:hover::after, .btn.ghost:hover::after{transform:translateX(120%)}
 
 .card{transition:transform .22s ease, box-shadow .22s ease}
 .card:hover{transform:translateY(-6px) scale(1.01)}
-.card::before{
-  content:""; position:absolute; left:10px; right:10px; top:0; height:1px;
-  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--brand) 65%, #fff), transparent);
-  opacity:0; transition:opacity .22s ease;
-}
+.card::before{content:""; position:absolute; left:10px; right:10px; top:0; height:1px; background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--brand) 65%, #fff), transparent); opacity:0; transition:opacity .22s ease}
 .card:hover::before{opacity:.9}
 .card .badge{transition:transform .22s ease}
 .card:hover .badge{transform:translateY(-2px) scale(1.03)}
 
 .calm-divider{isolation:isolate}
-.calm-divider::after{
-  content:""; position:absolute; inset:0;
-  background:linear-gradient(90deg, color-mix(in srgb, var(--brand) 32%, transparent), color-mix(in srgb, var(--brand-2) 32%, transparent));
-  mix-blend-mode:screen; opacity:.35
-}
+.calm-divider::after{content:""; position:absolute; inset:0; background:linear-gradient(90deg, color-mix(in srgb, var(--brand) 32%, transparent), color-mix(in srgb, var(--brand-2) 32%, transparent)); mix-blend-mode:screen; opacity:.35}
 
-.career-path path{stroke-dasharray:8 12; animation:trail 3.6s ease-in-out infinite}
-@keyframes trail{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-320}}
-
-details[open] > *:not(summary){animation:accord 260ms ease-out}
-@keyframes accord{from{opacity:0; transform:translateY(-6px)}to{opacity:1; transform:translateY(0)}}
-
-.article-content :target{
-  outline:2px solid color-mix(in srgb, var(--brand) 60%, #fff);
-  outline-offset:4px; animation:flash 1.2s ease-out 1;
-}
+/* Scrollspy highlight */
+.article-content :target{outline:2px solid color-mix(in srgb, var(--brand) 60%, #fff); outline-offset:4px; animation:flash 1.2s ease-out 1}
 @keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,127,80,.55)}70%{box-shadow:0 0 0 10px rgba(255,127,80,0)}100%{box-shadow:none}}
+.flash-target{outline:2px solid color-mix(in srgb, var(--brand) 60%, #fff); outline-offset:4px; box-shadow:0 0 0 6px rgba(255,127,80,0.3)}
 
-/* Highlight efekti için ek sınıf (JS kullanıyor) */
-.flash-target{
-  outline:2px solid color-mix(in srgb, var(--brand) 60%, #fff);
-  outline-offset:4px;
-  box-shadow:0 0 0 6px rgba(255,127,80,0.3);
-}
-/* İçindekiler scroll bar tasarımı */
-nav[aria-label="İçindekiler"] {
-  scrollbar-width: thin;
-  scrollbar-color: #ff7f50 #1a2030;
-}
-
-/* Webkit tabanlı tarayıcılar için */
-nav[aria-label="İçindekiler"]::-webkit-scrollbar {
-  width: 8px;
-  background: transparent;
-}
-nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb {
-  background-color: #ff7f50;
-  border-radius: 8px;
-  border: 2px solid #1a2030; /* dış kenar koyu arkaplanla uyumlu */
-  transition: background-color 0.3s ease;
-}
-nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
-  background-color: #ff9966;
-}
-
-@media (max-width: 768px) {
-  #makale > div {
-    grid-template-columns: 1fr !important;
-  }
-  #makale nav[aria-label="İçindekiler"] {
-    position: static !important;
-    height: auto !important;
-    overflow: visible !important;
-    margin-bottom: 2rem;
-  }
-}
-
+/* TOC scrollbar */
+nav[aria-label="İçindekiler"]{scrollbar-width:thin; scrollbar-color:#ff7f50 #1a2030}
+nav[aria-label="İçindekiler"]::-webkit-scrollbar{width:8px;background:transparent}
+nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb{background-color:#ff7f50;border-radius:8px;border:2px solid #1a2030;transition:background-color .3s ease}
+nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover{background-color:#ff9966}
 </style>
 <script type="application/ld+json">
 [
@@ -340,11 +288,7 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
     "image": ["https://n8n-eterna.s3.eu-central-1.amazonaws.com/image-20250723-141213.png"],
     "datePublished": "2025-07-23T11:13:01.264Z",
     "dateModified": "2025-07-23T11:13:01.264Z",
-    "author": {
-      "@type": "Person",
-      "name": "Elif Demir",
-      "url": "https://wp.serpsonic.com/authors/Elif-Demir"
-    }
+    "author": {"@type":"Person","name":"Elif Demir","url":"https://wp.serpsonic.com/authors/Elif-Demir"}
   },
   {
     "@context": "https://schema.org",
@@ -355,11 +299,7 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
     "creditText": "Open AI tarafından oluşturulmuştur",
     "caption": "Evden Çağrı Merkezi ile ilgili bir görsel",
     "datePublished": "2025-07-23T11:13:01.264Z",
-    "creator": {
-      "@type": "Organization",
-      "name": "OpenAI",
-      "url": "https://openai.com"
-    },
+    "creator": {"@type":"Organization","name":"OpenAI","url":"https://openai.com"},
     "description": "Evden Çağrı Merkezi ile ilgili bir görsel",
     "name": "Image for Evden Çağrı Merkezi"
   },
@@ -367,22 +307,8 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Evden çalışma modelinde veri güvenliği nasıl sağlanıyor?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Şirketler VPN ve şifreleme yöntemleri kullanır. Çalışanlar güvenli cihazlar ve ağlar kullanır. Veri erişim yetkilerini sınırlandırır."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Hangi teknolojik altyapı ve ekipmanlar sağlanıyor?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "İşverenler dizüstü bilgisayar ve kulaklık gibi donanımlar sağlar. Ayrıca yazılım ve internet erişimi de sunar. Gerekli teknik destek verir."
-        }
-      }
+      {"@type":"Question","name":"Evden çalışma modelinde veri güvenliği nasıl sağlanıyor?","acceptedAnswer":{"@type":"Answer","text":"Şirketler VPN ve şifreleme yöntemleri kullanır. Çalışanlar güvenli cihazlar ve ağlar kullanır. Veri erişim yetkilerini sınırlandırır."}},
+      {"@type":"Question","name":"Hangi teknolojik altyapı ve ekipmanlar sağlanıyor?","acceptedAnswer":{"@type":"Answer","text":"İşverenler dizüstü bilgisayar ve kulaklık gibi donanımlar sağlar. Ayrıca yazılım ve internet erişimi de sunar. Gerekli teknik destek verir."}}
     ]
   },
   {
@@ -390,62 +316,16 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
     "@type": "ClaimReview",
     "url": "https://wp.serpsonic.com/Evden-ar-Merkezi",
     "claimReviewed": "Evden Çağrı Merkezi doğru bir bilgidir",
-    "itemReviewed": {
-      "@type": "Claim",
-      "author": {
-        "@type": "Organization",
-        "name": "Bilinmeyen Kuruluş",
-        "sameAs": "https://wp.serpsonic.com"
-      },
-      "datePublished": "2024-06-20",
-      "appearance": {
-        "@type": "OpinionNewsArticle",
-        "url": "https://wp.serpsonic.com/Trkiye-ar-Merkezi-Dernei-Yaynlar",
-        "headline": "Türkiye Çağrı Merkezi Derneği Yayınları",
-        "datePublished": "2024-06-22",
-        "author": {
-          "@type": "Person",
-          "name": "Elif Demir"
-        },
-        "image": "https://n8n-eterna.s3.eu-central-1.amazonaws.com/image-20250723-141213.png",
-        "publisher": {
-          "@type": "Organization",
-          "name": "SerpSonic Makale",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://example.com/serpsonic-logo.jpg"
-          }
-        }
-      }
-    },
-    "author": {
-      "@type": "Organization",
-      "name": "SerpSonic Ekibi"
-    },
-    "reviewRating": {
-      "@type": "Rating",
-      "ratingValue": 1,
-      "bestRating": 5,
-      "worstRating": 1,
-      "alternateName": "False"
-    }
+    "itemReviewed": {"@type":"Claim","author":{"@type":"Organization","name":"Bilinmeyen Kuruluş","sameAs":"https://wp.serpsonic.com"},"datePublished":"2024-06-20","appearance":{"@type":"OpinionNewsArticle","url":"https://wp.serpsonic.com/Trkiye-ar-Merkezi-Dernei-Yaynlar","headline":"Türkiye Çağrı Merkezi Derneği Yayınları","datePublished":"2024-06-22","author":{"@type":"Person","name":"Elif Demir"},"image":"https://n8n-eterna.s3.eu-central-1.amazonaws.com/image-20250723-141213.png","publisher":{"@type":"Organization","name":"SerpSonic Makale","logo":{"@type":"ImageObject","url":"https://example.com/serpsonic-logo.jpg"}}}}},
+    "author": {"@type":"Organization","name":"SerpSonic Ekibi"},
+    "reviewRating": {"@type":"Rating","ratingValue": 1, "bestRating": 5, "worstRating": 1, "alternateName": "False"}
   },
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Elif Demir",
-    "url": "https://wp.serpsonic.com/authors/Elif-Demir",
-    "jobTitle": "Çağrı Merkezi Yönetimi ve Uzaktan Çalışma Uzmanı",
-    "affiliation": {
-      "@type": "Organization",
-      "name": "SerpSonic Makale"
-    }
-  }
+  {"@context":"https://schema.org","@type":"Person","name":"Elif Demir","url":"https://wp.serpsonic.com/authors/Elif-Demir","jobTitle":"Çağrı Merkezi Yönetimi ve Uzaktan Çalışma Uzmanı","affiliation":{"@type":"Organization","name":"SerpSonic Makale"}}
 ]
 </script>
-
 </head>
 <body>
+<a href="#main" class="skip-link">İçeriğe geç</a>
 
 <header class="nav">
   <div class="container nav-inner">
@@ -453,12 +333,16 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
       <span class="logo" aria-hidden="true"></span>
       <span>Freelance Call Center</span>
     </div>
-    <a class="nav-cta" href="#basvur">
-      <span class="dot" aria-hidden="true"></span> Hemen Ara
-    </a>
+    <nav class="nav-links" aria-label="Birincil">
+      <a href="#neden-biz">Neden Biz</a>
+      <a href="#makale">Rehber</a>
+      <a href="#sss">SSS</a>
+    </nav>
+    <a class="nav-cta" href="#basvur"><span class="dot" aria-hidden="true"></span> Hemen Ara</a>
   </div>
 </header>
 
+<main id="main">
 <section class="hero">
   <div class="container hero-grid">
     <div>
@@ -471,47 +355,23 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
       </div>
     </div>
     <div class="hero-art" aria-hidden="true" style="position:relative;aspect-ratio:1/1;min-height:320px;border-radius:28px;overflow:hidden;background:#0e1626;border:1px solid #1f2b42;box-shadow:0 20px 60px #00000066, inset 0 0 0 1px #ffffff08;">
-  <div class="glow" style="position:absolute;inset:-30%;background:radial-gradient(45% 45% at 70% 30%, rgba(255,127,80,.45) 0%, transparent 60%),radial-gradient(50% 50% at 20% 80%, rgba(255,90,47,.35) 0%, transparent 60%);filter:blur(30px);"></div>
-  
-  <!-- Optimize edilmiş görsel -->
-<picture>
-  <source srcset="call_center_optimized.webp" type="image/webp">
-  <img src="call_center_optimized.webp" 
-       alt="" 
-       loading="eager" 
-       fetchpriority="high"
-       decoding="async"
-       style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
-</picture>
-
-
-  <!-- SVG dalga katmanı -->
-  <svg viewBox="0 0 600 600" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:.7">
-    <defs>
-      <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#ff7f50"/>
-        <stop offset="100%" stop-color="#ff5a2f"/>
-      </linearGradient>
-    </defs>
-    <path d="M0,520 C120,560 240,380 360,420 C430,460 520,380 600,420 L600,600 L0,600 Z" fill="url(#lg)" opacity=".22"/>
-    <path d="M0,500 C130,540 250,360 370,400 C440,440 520,360 600,400 L600,600 L0,600 Z" fill="#ff7f50" opacity=".12"/>
-  </svg>
-</div>
+      <div class="glow" style="position:absolute;inset:-30%;background:radial-gradient(45% 45% at 70% 30%, rgba(255,127,80,.45) 0%, transparent 60%),radial-gradient(50% 50% at 20% 80%, rgba(255,90,47,.35) 0%, transparent 60%);filter:blur(30px);"></div>
+      <picture>
+        <source srcset="call_center_optimized.webp" type="image/webp">
+        <img src="call_center_optimized.webp" alt="" loading="eager" fetchpriority="high" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+      </picture>
+      <svg viewBox="0 0 600 600" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:.7">
+        <defs><linearGradient id="lg-hero" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff7f50"/><stop offset="100%" stop-color="#ff5a2f"/></linearGradient></defs>
+        <path d="M0,520 C120,560 240,380 360,420 C430,460 520,380 600,420 L600,600 L0,600 Z" fill="url(#lg-hero)" opacity=".22"/>
+        <path d="M0,500 C130,540 250,360 370,400 C440,440 520,360 600,400 L600,600 L0,600 Z" fill="#ff7f50" opacity=".12"/>
+      </svg>
+    </div>
+  </div>
 </section>
-<!-- Hero -> Avantajlar geçiş dalgası -->
+
 <div class="calm-divider" aria-hidden="true">
-  <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="wave-orange-dark" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#0a0c10" />
-      </linearGradient>
-    </defs>
-    <path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark)"/>
-  </svg>
+  <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><defs><linearGradient id="wave-orange-dark-1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/><stop offset="100%" stop-color="#0a0c10" /></linearGradient></defs><path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark-1)"/></svg>
 </div>
-
-
 
 <section id="neden-biz" class="features">
   <div class="container">
@@ -521,197 +381,52 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
       <p style="color:var(--muted);max-width:70ch">Performans odaklı altyapı, güçlü müşteri ağı ve net süreçlerle freelance yolculuğunu kolaylaştırıyoruz.</p>
     </div>
     <div class="cards">
-      <article class="card">
-        <div class="badge">⚡</div>
-        <div><h3>Hızlı Başlangıç</h3><p>Basit başvuru akışı ve net evrak süreçleri ile birkaç gün içinde iş üstlen.</p></div>
-      </article>
-      <article class="card">
-        <div class="badge">🎧</div>
-        <div><h3>Modern Araçlar</h3><p>Bulut çağrı çözümleri, kayıt ve raporlama panelleri tek ekosistemde.</p></div>
-      </article>
-      <article class="card">
-        <div class="badge">💸</div>
-        <div><h3>Düzenli Ödeme</h3><p>Şeffaf ödeme takvimi, performansa göre prim ve bonus olanakları.</p></div>
-      </article>
-      <article class="card">
-        <div class="badge">🛡️</div>
-        <div><h3>Güvenli Operasyon</h3><p>KVKK uyumlu süreçler ve uçtan uca şifreli iletişim katmanları.</p></div>
-      </article>
-      <article class="card">
-        <div class="badge">📈</div>
-        <div><h3>Büyüme Yolu</h3><p>Başarı rozetleri, ekip liderliği ve eğitimlerle seviyeni yükselt.</p></div>
-      </article>
-      <article class="card">
-        <div class="badge">🧭</div>
-        <div><h3>Esnek Program</h3><p>Yoğun yaşam temposuna göre vardiya ve slot planlama.</p></div>
-      </article>
+      <article class="card" tabindex="0"><div class="badge">⚡</div><div><h3>Hızlı Başlangıç</h3><p>Basit başvuru akışı ve net evrak süreçleri ile birkaç gün içinde iş üstlen.</p></div></article>
+      <article class="card" tabindex="0"><div class="badge">🎧</div><div><h3>Modern Araçlar</h3><p>Bulut çağrı çözümleri, kayıt ve raporlama panelleri tek ekosistemde.</p></div></article>
+      <article class="card" tabindex="0"><div class="badge">💸</div><div><h3>Düzenli Ödeme</h3><p>Şeffaf ödeme takvimi, performansa göre prim ve bonus olanakları.</p></div></article>
+      <article class="card" tabindex="0"><div class="badge">🛡️</div><div><h3>Güvenli Operasyon</h3><p>KVKK uyumlu süreçler ve uçtan uca şifreli iletişim katmanları.</p></div></article>
+      <article class="card" tabindex="0"><div class="badge">📈</div><div><h3>Büyüme Yolu</h3><p>Başarı rozetleri, ekip liderliği ve eğitimlerle seviyeni yükselt.</p></div></article>
+      <article class="card" tabindex="0"><div class="badge">🧭</div><div><h3>Esnek Program</h3><p>Yoğun yaşam temposuna göre vardiya ve slot planlama.</p></div></article>
     </div>
   </div>
 </section>
-<!-- Avantajlar -> Makale geçişi -->
+
 <div class="calm-divider" aria-hidden="true">
-  <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="wave-orange-dark" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#0b0f16" />
-      </linearGradient>
-    </defs>
-    <path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark)"/>
-  </svg>
+  <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><defs><linearGradient id="wave-orange-dark-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/><stop offset="100%" stop-color="#0b0f16" /></linearGradient></defs><path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark-2)"/></svg>
 </div>
-
-
-
-
 
 <section id="makale" aria-label="Evden Çağrı Merkezi Rehberi" style="background:#0b0f16; padding:6rem 1.5rem;">
   <div style="max-width:1200px; margin-inline:auto; display:grid; grid-template-columns: minmax(0,280px) 1fr; gap:3rem; align-items:start;">
-    
-    <!-- İçindekiler -->
-    <nav aria-label="İçindekiler" style="
-      position:sticky; top:5rem; height:calc(100vh - 5rem);
-      background: linear-gradient(180deg, #1a2030 0%, #0f1725 100%);
-      border-radius:20px; padding:2rem 1.6rem;
-      box-shadow: 0 20px 36px rgb(255 127 80 / 0.35);
-      border: 1px solid #23304a;
-      overflow-y:auto;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color:#b0b9d7; font-weight:600; font-size:0.95rem;
-      user-select:none;
-      letter-spacing:0.03em;
-    ">
-      <h3 style="color:#ff7f50; font-size:1.35rem; margin-bottom:1.3rem; user-select:none;">İçindekiler</h3>
-      <ol style="list-style:none; padding-left:0; margin:0;">
-        <li style="margin-bottom:1.1rem;">
-          <a href="#gerekli-ekipmanlar" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden çağrı merkezi için hangi ekipmanlar gereklidir</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#is-ilanlari" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Uzaktan çağrı merkezi iş ilanları nasıl bulunur</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#maliyet" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Sanal çağrı merkezi kurmak maliyetli mi</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#aranan-ozellikler" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden müşteri hizmetleri pozisyonları için aranan özellikler</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#calisma-saatleri" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Remote çağrı merkezi çalışma saatleri nasıldır</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#avantajlar" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Sanal ofis çağrı merkezi avantajları nelerdir</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#performans" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden çağrı merkezi performansı nasıl ölçülür</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#yasal" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden çağrı merkezi yasal mı</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#vergi" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden çağrı merkezi vergi avantajları var mı</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#basvuru-sureci" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden çağrı merkezi başvuru süreci nasıl işler</a>
-        </li>
-        <li style="margin-bottom:1.1rem;">
-          <a href="#mulakat" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden çağrı merkezi mülakatlarında nelere dikkat etmeli</a>
-        </li>
-        <li>
-          <a href="#kariyer" style="
-            color:#b0b9d7; text-decoration:none; border-radius:8px;
-            padding:0.3rem 0.75rem; display:block; transition: all 0.25s ease;
-          "
-          onmouseenter="this.style.backgroundColor='#ff7f50'; this.style.color='#121212';"
-          onmouseleave="this.style.backgroundColor=''; this.style.color='#b0b9d7';"
-          >Evden çağrı merkezi kariyer fırsatları nelerdir</a>
-        </li>
-      </ol>
-    </nav>
-    
-    <!-- Makale İçeriği -->
-    <article style="
-      background: linear-gradient(180deg, #111826 0%, #0f1725 100%);
-      border-radius: 20px;
-      padding: 3.5rem 3rem;
-      box-shadow: 0 24px 60px rgba(255,127,80,0.3);
-      border: 1px solid #23304a;
-      color: #d3d9f0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 1.1rem;
-      line-height: 1.75;
-      overflow-wrap: break-word;
-      max-width: 860px;
-    ">
-<p>
-  Evden çağrı merkezi, günümüzde popüler bir çalışma modeli haline gelmiştir. Bu model, çalışanlara esnek çalışma saatleri sunarak iş-yaşam dengesini sağlamalarına yardımcı olur. Uzaktan çağrı merkezi uygulamaları, modern iş hayatında giderek yaygınlaşmaktadır. Şirketler, bu sayede maliyetlerini azaltma fırsatı yakalarken; çalışanlar da evden çalışarak verimliliklerini artırır ve müşteri hizmetleri süreçlerini daha etkin yönetirler. Esnek çalışma, çalışan memnuniyetini yükseltirken, şirketler geniş yetenek havuzlarına erişim sağlar. Teknolojik gelişmeler de bu çalışma biçiminin desteklenmesinde önemli bir rol oynar.
-</p>
 
+    <div>
+      <button class="toc-toggle" type="button" aria-expanded="false" aria-controls="toc-list">İçindekiler</button>
+      <!-- İçindekiler -->
+      <nav class="toc" aria-label="İçindekiler" data-collapsed="false">
+        <h3 style="color:#ff7f50; font-size:1.2rem; margin:0 0 .6rem">İçindekiler</h3>
+        <ol id="toc-list" style="list-style:none; padding-left:1rem; margin:0;">
+          <li><a href="#gerekli-ekipmanlar">Evden çağrı merkezi için hangi ekipmanlar gereklidir</a></li>
+          <li><a href="#is-ilanlari">Uzaktan çağrı merkezi iş ilanları nasıl bulunur</a></li>
+          <li><a href="#maliyet">Sanal çağrı merkezi kurmak maliyetli mi</a></li>
+          <li><a href="#aranan-ozellikler">Evden müşteri hizmetleri pozisyonları için aranan özellikler</a></li>
+          <li><a href="#calisma-saatleri">Remote çağrı merkezi çalışma saatleri nasıldır</a></li>
+          <li><a href="#avantajlar">Sanal ofis çağrı merkezi avantajları nelerdir</a></li>
+          <li><a href="#performans">Evden çağrı merkezi performansı nasıl ölçülür</a></li>
+          <li><a href="#yasal">Evden çağrı merkezi yasal mı</a></li>
+          <li><a href="#vergi">Evden çağrı merkezi vergi avantajları var mı</a></li>
+          <li><a href="#basvuru-sureci">Evden çağrı merkezi başvuru süreci nasıl işler</a></li>
+          <li><a href="#mulakat">Evden çağrı merkezi mülakatlarında nelere dikkat etmeli</a></li>
+          <li><a href="#kariyer">Evden çağrı merkezi kariyer fırsatları nelerdir</a></li>
+        </ol>
+      </nav>
+    </div>
+
+    <!-- Makale İçeriği -->
+    <article class="article-content" id="makale-icerik" tabindex="-1" aria-describedby="makale-desc">
+      <p id="makale-desc" class="sr-only" style="position:absolute;left:-9999px">Evden çağrı merkezi hakkında rehber içerik.</p>
+      <p>
+        Evden çağrı merkezi, günümüzde popüler bir çalışma modeli haline gelmiştir. Bu model, çalışanlara esnek çalışma saatleri sunarak iş-yaşam dengesini sağlamalarına yardımcı olur. Uzaktan çağrı merkezi uygulamaları, modern iş hayatında giderek yaygınlaşmaktadır. Şirketler, bu sayede maliyetlerini azaltma fırsatı yakalarken; çalışanlar da evden çalışarak verimliliklerini artırır ve müşteri hizmetleri süreçlerini daha etkin yönetirler. Esnek çalışma, çalışan memnuniyetini yükseltirken, şirketler geniş yetenek havuzlarına erişim sağlar. Teknolojik gelişmeler de bu çalışma biçiminin desteklenmesinde önemli bir rol oynar.
+      </p>
+      <p>
 <button id="read-more" class="btn">Devamını Oku</button>
 <div id="more-content" hidden>
 <h2 id="gerekli-ekipmanlar">Evden Çağrı Merkezi İçin Gerekli Ekipmanlar</h2>
@@ -873,21 +588,10 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
       </article>
   </div>
 </section>
-
-  <!-- Makale -> Yorumlar/SSS geçiş dalgası -->
 <div class="calm-divider" aria-hidden="true">
-  <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="wave-orange-dark" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#0a0c10" />
-      </linearGradient>
-    </defs>
-    <path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark)"/>
-  </svg>
+  <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><defs><linearGradient id="wave-orange-dark-3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/><stop offset="100%" stop-color="#0a0c10" /></linearGradient></defs><path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark-3)"/></svg>
 </div>
 
-<!-- Bölüm 1: Kullanıcı Yorumları -->
 <section id="yorumlar" style="background:linear-gradient(180deg,#0a0c10 0%, #0b0f16 100%); padding-block:clamp(56px,8vw,92px)">
   <div class="container">
     <div class="section-head">
@@ -895,30 +599,18 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
       <h2 class="section-title">Kullanıcı Yorumları</h2>
       <p style="color:var(--muted);max-width:70ch">Bizimle çalışmaya başlayan freelancer'ların deneyimlerinden bazıları.</p>
     </div>
-
     <div class="cards" style="margin-bottom:48px">
       <article class="card"><div class="badge">💬</div><div><h3>Ayşe K.</h3><p>Evden çalışarak düzenli kazanç sağlamak harika! Başvuru süreci çok hızlı ilerledi.</p></div></article>
       <article class="card"><div class="badge">💬</div><div><h3>Mehmet T.</h3><p>Esnek saatler sayesinde kendi programımı yapabiliyorum, ekip desteği de çok iyi.</p></div></article>
       <article class="card"><div class="badge">💬</div><div><h3>Elif D.</h3><p>Ödeme düzeni ve şeffaf raporlama sistemi çok güven veriyor.</p></div></article>
     </div>
-    </div>
   </div>
 </section>
 
-<!-- Yorumlar -> Footer geçiş dalgası -->
 <div class="calm-divider" aria-hidden="true">
-  <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="wave-orange-dark" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#0a0c10" />
-      </linearGradient>
-    </defs>
-    <path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark)"/>
-  </svg>
+  <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><defs><linearGradient id="wave-orange-dark-4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/><stop offset="100%" stop-color="#0a0c10" /></linearGradient></defs><path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark-4)"/></svg>
 </div>
 
-<!-- Bölüm 2: SSS -->
 <section id="sss" style="background:#0a0c10; padding-block:clamp(56px,8vw,92px)">
   <div class="container">
     <div class="section-head">
@@ -936,45 +628,96 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover {
     </div>
   </div>
 </section>
+</main>
 
-
-<!-- Yorumlar -> Footer geçiş dalgası -->
 <div class="calm-divider" aria-hidden="true">
-  <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="wave-orange-dark" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#0a0c10" />
-      </linearGradient>
-    </defs>
-    <path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark)"/>
-  </svg>
+  <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><defs><linearGradient id="wave-orange-dark-5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff7f50" stop-opacity="0.35"/><stop offset="100%" stop-color="#0a0c10" /></linearGradient></defs><path d="M0,30 C300,60 900,0 1440,30 L1440,70 L0,70 Z" fill="url(#wave-orange-dark-5)"/></svg>
 </div>
 
 <footer>
-  <div class="container">
-    <small>© 2025 • Freelance Call Center • Tüm hakları saklıdır.</small>
-  </div>
+  <div class="container"><small>© 2025 • Freelance Call Center • Tüm hakları saklıdır.</small></div>
 </footer>
+
+<button id="to-top" type="button" aria-label="Yukarı dön" title="Yukarı dön" aria-hidden="true">↑</button>
 
 <script>
 (function(){
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Smooth scroll for in-page anchors
+  document.addEventListener('click', (e)=>{
+    const a = e.target.closest('a[href^="#"]');
+    if(!a) return;
+    const id = a.getAttribute('href');
+    const el = document.querySelector(id);
+    if(el){
+      e.preventDefault();
+      el.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+      if(el.getAttribute('tabindex') === '-1'){ el.focus({preventScroll:true}); }
+      history.replaceState(null, '', id);
+    }
+  });
+
+  // Read more / less with a11y state and focus management
   const readMore = document.getElementById('read-more');
   const showLess = document.getElementById('show-less');
   const moreContent = document.getElementById('more-content');
-  if(!readMore || !showLess || !moreContent) return;
+  if(readMore && moreContent){
+    readMore.addEventListener('click', ()=>{
+      moreContent.hidden = false;
+      readMore.setAttribute('aria-expanded','true');
+      readMore.style.display = 'none';
+      const firstH2 = moreContent.querySelector('h2');
+      if(firstH2) firstH2.scrollIntoView({behavior: prefersReduced ? 'auto':'smooth'});
+    });
+  }
+  if(showLess && moreContent && readMore){
+    showLess.addEventListener('click', ()=>{
+      moreContent.hidden = true;
+      readMore.setAttribute('aria-expanded','false');
+      readMore.style.display = '';
+      readMore.focus({preventScroll:true});
+    });
+  }
 
-  readMore.addEventListener('click', () => {
-    moreContent.hidden = false;
-    readMore.style.display = 'none';
-  });
+  // TOC mobile collapse
+  const toc = document.querySelector('.toc');
+  const tocBtn = document.querySelector('.toc-toggle');
+  const tocList = document.getElementById('toc-list');
+  if(toc && tocBtn && tocList){
+    const setCollapsed = (val)=>{ toc.dataset.collapsed = String(val); tocBtn.setAttribute('aria-expanded', String(!val)); };
+    setCollapsed(window.innerWidth < 769);
+    tocBtn.addEventListener('click', ()=> setCollapsed(toc.dataset.collapsed !== 'true' ? true : false));
+    window.addEventListener('resize', ()=>{ if(window.innerWidth >= 769) setCollapsed(false); });
+  }
 
-  showLess.addEventListener('click', () => {
-    moreContent.hidden = true;
-    readMore.style.display = '';
-  });
+  // Scrollspy for headings -> highlight in TOC
+  const headings = Array.from(document.querySelectorAll('#more-content h2[id]'));
+  const tocLinks = new Map(Array.from(document.querySelectorAll('.toc a')).map(a=>[a.getAttribute('href').slice(1), a]));
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const id = entry.target.getAttribute('id');
+        document.querySelectorAll('.toc li').forEach(li=>li.classList.remove('active'));
+        const a = tocLinks.get(id);
+        if(a){ a.parentElement.classList.add('active'); a.setAttribute('aria-current','location'); }
+      }
+    });
+  }, {rootMargin:'-60% 0px -35% 0px', threshold: 0});
+  headings.forEach(h=>obs.observe(h));
+
+  // Back to top visibility
+  const toTop = document.getElementById('to-top');
+  if(toTop){
+    const toggleTop = ()=>{
+      if(window.scrollY > 600){ toTop.classList.add('show'); toTop.removeAttribute('aria-hidden'); }
+      else { toTop.classList.remove('show'); toTop.setAttribute('aria-hidden','true'); }
+    };
+    toggleTop();
+    window.addEventListener('scroll', toggleTop, {passive:true});
+    toTop.addEventListener('click', ()=> window.scrollTo({top:0, behavior: prefersReduced ? 'auto':'smooth'}));
+  }
 })();
-
 </script>
 </body>
 </html>
