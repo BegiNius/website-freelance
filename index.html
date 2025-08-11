@@ -706,20 +706,30 @@ nav[aria-label="İçindekiler"]::-webkit-scrollbar-thumb:hover{background-color:
   }, {rootMargin:'-60% 0px -35% 0px', threshold: 0});
   headings.forEach(h=>obs.observe(h));
 
-  // Back to top visibility
-  const toTop = document.getElementById('to-top');
-  if(toTop){
-    const toggleTop = ()=>{
-      if(window.scrollY > 600){ toTop.classList.add('show'); toTop.removeAttribute('aria-hidden'); }
-      else { toTop.classList.remove('show'); toTop.setAttribute('aria-hidden','true'); }
-    };
-    toggleTop();
-    window.addEventListener('scroll', toggleTop, {passive:true});
-    toTop.addEventListener('click', ()=> window.scrollTo({top:0, behavior: prefersReduced ? 'auto':'smooth'}));
-  }
-})();
+// Back to top visibility
+const toTop = document.getElementById('to-top');
+if (toTop) {
+  const toggleTop = () => {
+    if (window.scrollY > 600) {
+      toTop.classList.add('show');
+      toTop.removeAttribute('tabindex');      // tab ile erişilebilir
+    } else {
+      // Gizlenirken odak varsa al
+      if (document.activeElement === toTop) toTop.blur();
+      toTop.classList.remove('show');
+      toTop.setAttribute('tabindex', '-1');   // tabdan çıkar
+    }
+  };
+  toggleTop();
+  window.addEventListener('scroll', toggleTop, { passive: true });
+  toTop.addEventListener('click', () =>
+    window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' })
+  );
+}
+
 </script>
 </body>
 </html>
+
 
 
